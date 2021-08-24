@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Авторизация/Регистрация</title>
+</head>
+<body>
+    <script src="https://www.gstatic.com/firebasejs/8.2.10/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.10/firebase-auth.js"></script>
+    <script>
+        const get_cookie=(name)=>{
+            const results=document.cookie.match('(^|;)  ?' +name+'=([^;]*) (;|$)');
+            return results ? results[2] : null
+        }
+        window.addEventListener('DOMContentLoaded',()=>{
+            var firebaseConfig = {
+            apiKey: "AIzaSyApam9gdbTwVI44Fiw8EDtlGGBBiO-mSQ4",
+            authDomain: "firestore-test-18de9.firebaseapp.com",
+            databaseURL: "https://firestore-test-18de9-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "firestore-test-18de9",
+            storageBucket: "firestore-test-18de9.appspot.com",
+            messagingSenderId: "338074363859",
+            appId: "1:338074363859:web:f087082eeecbb1075bf126",
+            measurementId: "G-GQ9WE5106K"
+        };
+            firebase.initializeApp(firebaseConfig)
+            firebase.auth().setPersistence(firebase.auth.Auth.Persistence.NONE)
+            document.getElementById('login').addEventListener('submit',(event)=>{
+                event.preventDefault()
+                let email=event.target.email.value
+                let password=event.target.password.value
+                alert(email)
+                firebase.auth().signInWithEmailAndPassword(email,password).then(({user})=>{
+                    return user.getIdToken().then((idToken)=>{
+                        return fetch("user/login",{
+                            method: "POST",
+                            headers: {
+                                Accept: "application/json",
+                                "Content-type":"application/json",
+                                "CSRF-Token": get_cookie("XSRF-Token")
+                            },
+                            body: JSON.stringify({idToken}),
+                        })
+                    })
+            }).then(()=>{
+                return firebase.auth().signOut()}).then(()=>{
+                window.location='/user/profile'
+            })
+            //return false
+            })
+        })
+        
+        
+    </script>
+    <div align="center">
+        <h2>Вход</h2>
+        <form  id="login">
+            <table >            
+            <tr><td>
+                <input type="text" id="email" value="xrenegoknows@gmail.com">
+                <label for="email">email</label>
+            </td></tr>
+            
+            <tr><td>
+                <input type="text" id="password" value="123456">
+                <label for="password">password</label>
+            </td></tr>
+            <tr><td><button type="submit">Sign in</button></td></tr>
+            </table>
+        </form>
+    </div>
+    <div align="center" style="margin-top: 100px;">
+        <h2>Регистрация</h2>
+        <form id="registration" method="POST" action=/user/signup>
+            <table>
+            
+            <tr><td>
+                <input  type="text" id="email">
+                <label for="email">email</label>
+            </td></tr>
+
+            
+            <tr><td>
+                <input type="text" id="password">
+                <label for="password">password</label>
+            </td></tr>
+
+            
+
+            <tr><td>
+                <input type="text" id="displayName">
+                <label for="displayName">displayName</label>
+            </td></tr>
+            <tr><td><button type="submit">Sign up</button></td></tr>
+        </table>
+            
+        </form>
+    </div>
+</body>
+</html>
